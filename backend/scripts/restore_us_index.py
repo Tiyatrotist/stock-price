@@ -21,8 +21,10 @@ def restore_us_index():
     try:
         from shared.index_manager import DynamicIndexManager
         
-        # Initialize index manager
-        data_dir = os.path.join('..', 'data')
+        # Absolute data directory path resolution relative to script location
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        data_dir = os.path.abspath(os.path.join(script_dir, '..', '..', 'data'))
+        
         index_manager = DynamicIndexManager(data_dir)
         
         # Check current count
