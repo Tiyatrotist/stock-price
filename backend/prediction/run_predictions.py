@@ -24,6 +24,7 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from prediction.predictor import StockPredictor
 from prediction.config import config
+from shared.utilities import categorize_stock
 
 # Setup logging
 logging.basicConfig(
@@ -90,10 +91,15 @@ def main():
         logger.info(f"Starting predictions at {start_time}")
         
         # Run predictions
-        if args.symbol and args.category:
+        if args.symbol:
+            category = args.category
+            if not category:
+                category = categorize_stock(args.symbol)
+                logger.info(f"Auto-categorized {args.symbol} as {category}")
+            
             # Single stock prediction
-            logger.info(f"Predicting single stock: {args.symbol} ({args.category})")
-            success = predictor.predict_stock(args.symbol, args.category)
+            logger.info(f"Predicting single stock: {args.symbol} ({category})")
+            success = predictor.predict_stock(args.symbol, category)
             
             if success:
                 logger.info(f"✅ Successfully predicted {args.symbol}")
@@ -180,12 +186,26 @@ def show_prediction_summary():
         print("PREDICTION SUMMARY")
         print("="*60)
         
+        if not summary:
+            print("No prediction summaries found.")
+            print("="*60 + "\n")
+            return
+            
         for category, data in summary.items():
             print(f"\n{category.upper()}:")
-            print(f"  Total stocks: {data['total_stocks']}")
-            print(f"  Total predictions: {data['total_predictions']}")
-            print(f"  Latest update: {data['latest_update']}")
-            print(f"  Horizons available: {', '.join(data['horizons_available'])}")
+            if not isinstance(data, dict):
+                print("  No data available.")
+                continue
+            total_stocks = data.get('total_stocks', 0)
+            total_predictions = data.get('total_predictions', 0)
+            latest_update = data.get('latest_update', 'N/A')
+            horizons_available = data.get('horizons_available', []) or []
+            horizons_str = ', '.join(horizons_available) if horizons_available else 'None'
+            
+            print(f"  Total stocks: {total_stocks}")
+            print(f"  Total predictions: {total_predictions}")
+            print(f"  Latest update: {latest_update}")
+            print(f"  Horizons available: {horizons_str}")
         
         print("\n" + "="*60)
         
@@ -200,27 +220,32 @@ def print_prediction_results(results: dict):
     print("PREDICTION RESULTS")
     print("="*60)
     
-    print(f"Total stocks processed: {results['total_stocks']}")
-    print(f"Successful predictions: {results['successful_predictions']}")
-    print(f"Failed predictions: {results['failed_predictions']}")
+    print(f"Total stocks processed: {results.get('total_stocks', 0)}")
+    print(f"Successful predictions: {results.get('successful_predictions', 0)}")
+    print(f"Failed predictions: {results.get('failed_predictions', 0)}")
     
-    success_rate = (results['successful_predictions'] / results['total_stocks'] * 100) if results['total_stocks'] > 0 else 0
+    total_stocks = results.get('total_stocks', 0)
+    successful_predictions = results.get('successful_predictions', 0)
+    success_rate = (successful_predictions / total_stocks * 100) if total_stocks > 0 else 0
     print(f"Success rate: {success_rate:.1f}%")
     
-    print(f"Start time: {results['start_time']}")
-    print(f"End time: {results['end_time']}")
+    print(f"Start time: {results.get('start_time', 'N/A')}")
+    print(f"End time: {results.get('end_time', 'N/A')}")
     
-    if results['failed_symbols']:
-        print(f"\nFailed symbols ({len(results['failed_symbols'])}):")
-        for symbol in results['failed_symbols'][:10]:  # Show first 10
+    failed_symbols = results.get('failed_symbols', [])
+    if failed_symbols:
+        print(f"\nFailed symbols ({len(failed_symbols)}):")
+        for symbol in failed_symbols[:10]:  # Show first 10
             print(f"  - {symbol}")
-        if len(results['failed_symbols']) > 10:
-            print(f"  ... and {len(results['failed_symbols']) - 10} more")
+        if len(failed_symbols) > 10:
+            print(f"  ... and {len(failed_symbols) - 10} more")
     
     print("\n" + "="*60)
     
     # Save results to file
-    results_file = f"prediction_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    results_dir = config.DATA_DIR if hasattr(config, 'DATA_DIR') and config.DATA_DIR else os.getcwd()
+    os.makedirs(results_dir, exist_ok=True)
+    results_file = os.path.join(results_dir, f"prediction_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
     try:
         with open(results_file, 'w') as f:
             json.dump(results, f, indent=2)
