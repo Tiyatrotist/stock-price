@@ -280,7 +280,9 @@ class ConfidenceCalculator:
         # CV of 0.3 (30% variation) = ~30
         # CV of 0.5+ (50%+ variation) = 0
         
-        if cv <= 0.02:  # Very tight agreement (< 2%)
+        if cv <= 0.0001:  # Constant/flat prediction fallback penalty
+            score = 40.0
+        elif cv <= 0.02:  # Very tight agreement (< 2%)
             score = 100.0
         elif cv <= 0.05:  # Good agreement (< 5%)
             score = 100.0 - (cv - 0.02) * (100.0 - 85.0) / (0.05 - 0.02)
@@ -342,6 +344,10 @@ class ConfidenceCalculator:
         # Volatility of 0.50 (50% annual) = ~50 score (high volatility stock)
         # Volatility of 1.0+ (100%+ annual) = ~20 score (very high volatility)
         
+        # Safeguard: Constant or zero-volatility illiquid stocks receive a low confidence penalty
+        if annualized_volatility < 0.001:
+            return 30.0  # Low confidence for non-moving / illiquid stocks
+            
         if annualized_volatility <= 0.15:  # Low volatility
             score = 100.0 - annualized_volatility * (100.0 - 85.0) / 0.15
         elif annualized_volatility <= 0.30:  # Medium-low volatility
