@@ -18,6 +18,7 @@ import pandas as pd
 import json
 import numpy as np
 from flask import Flask, jsonify, request
+from flask.json.provider import DefaultJSONProvider
 from flask_cors import CORS
 from dotenv import load_dotenv
 import yfinance as yf
@@ -37,19 +38,26 @@ from shared.currency_converter import convert_usd_to_inr, convert_inr_to_usd, ge
 # Load environment variables
 load_dotenv()
 
-# Custom JSON encoder to handle NaN values
-class CustomJSONEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, float) and (np.isnan(obj) or np.isinf(obj)):
-            return None
-        return super().default(obj)
+# Custom JSON Provider for Flask 2.3+ to safely sanitize NaN/Inf values to None (null in JSON)
+class CustomJSONProvider(DefaultJSONProvider):
+    def dumps(self, obj, **kwargs):
+        def sanitize(item):
+            if isinstance(item, float) and (np.isnan(item) or np.isinf(item)):
+                return None
+            elif isinstance(item, dict):
+                return {k: sanitize(v) for k, v in item.items()}
+            elif isinstance(item, (list, tuple)):
+                return [sanitize(v) for v in item]
+            return item
+
+        return super().dumps(sanitize(obj), **kwargs)
 
 # Setup logging
 logger = setup_logger(__name__)
 
 # Initialize Flask app
 app = Flask(__name__)
-app.json_encoder = CustomJSONEncoder
+app.json_provider_class = CustomJSONProvider
 CORS(app)
 
 # Initialize configuration
