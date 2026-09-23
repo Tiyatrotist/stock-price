@@ -20,6 +20,7 @@ import numpy as np
 from flask import Flask, jsonify, request
 from flask.json.provider import DefaultJSONProvider
 from flask_cors import CORS
+from flask_compress import Compress
 from dotenv import load_dotenv
 import yfinance as yf
 
@@ -59,6 +60,7 @@ logger = setup_logger(__name__)
 app = Flask(__name__)
 app.json_provider_class = CustomJSONProvider
 CORS(app)
+Compress(app)
 
 # Initialize configuration
 config = Config()
