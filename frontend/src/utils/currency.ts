@@ -80,3 +80,11 @@ export function formatPriceDirect(price: number | undefined | null, currency: Cu
 export function getCurrencySymbol(currency: Currency): string {
   return currency === 'USD' ? '$' : '₹';
 }
+
+export function formatCompactNumber(num: number | undefined | null): string {
+  if (num == null || isNaN(num)) return 'N/A';
+  return new Intl.NumberFormat('en-US', { 
+    notation: 'compact', 
+    maximumFractionDigits: 2 
+  }).format(num);
+}
