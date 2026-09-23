@@ -504,9 +504,11 @@ def get_stock_info():
                     from algorithms.stock_indicators import StockIndicators
                     df_latest = pd.read_csv(latest_file)
                     df_with_rsi = StockIndicators._add_rsi(df_latest)
+                    golden_cross = StockIndicators.check_golden_cross(df_with_rsi)
                     stock_info['indicators'] = {
                         'rsi': float(df_with_rsi.iloc[-1]['rsi']),
-                        'rsi_tag': str(df_with_rsi.iloc[-1]['rsi_tag'])
+                        'rsi_tag': str(df_with_rsi.iloc[-1]['rsi_tag']),
+                        'golden_cross': golden_cross
                     }
             except Exception as e:
                 logger.warning(f"Could not calculate RSI for {symbol} metadata: {e}")

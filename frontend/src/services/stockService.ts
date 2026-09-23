@@ -84,6 +84,7 @@ export interface StockInfoResponse {
   indicators?: {
     rsi?: number;
     rsi_tag?: string;
+    golden_cross?: boolean;
   };
 }
 
