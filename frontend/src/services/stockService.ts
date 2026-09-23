@@ -127,6 +127,14 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout 
       signal: controller.signal
     });
     clearTimeout(timeoutId);
+    
+    // Global API Error Interceptor
+    if (!response.ok) {
+      console.error(
+        `[API Error] ${new Date().toISOString()} | HTTP ${response.status} ${response.statusText} | URL: ${url}`
+      );
+    }
+    
     return response;
   } catch (error) {
     clearTimeout(timeoutId);
