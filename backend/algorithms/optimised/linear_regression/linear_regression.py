@@ -77,11 +77,15 @@ class LinearRegressionModel(ModelInterface):
         # Scale features for training
         X_scaled = self.scaler.fit_transform(X)
         
-        # Train model on scaled features
-        self.model.fit(X_scaled, y)
+        # Log-transform target prices for linear growth
+        y_log = np.log(y)
         
-        # Calculate training metrics (using scaled features)
-        y_pred = self.model.predict(X_scaled)
+        # Train model on scaled features
+        self.model.fit(X_scaled, y_log)
+        
+        # Calculate training metrics using inverse transformed predictions
+        y_pred_log = self.model.predict(X_scaled)
+        y_pred = np.exp(y_pred_log)
         mse = mean_squared_error(y, y_pred)
         rmse = np.sqrt(mse)
         r2 = r2_score(y, y_pred)
@@ -113,9 +117,10 @@ class LinearRegressionModel(ModelInterface):
         X_scaled = self.scaler.transform(X)
         
         # Make predictions on scaled features
-        predictions = self.model.predict(X_scaled)
+        predictions_log = self.model.predict(X_scaled)
         
-        return predictions
+        # Inverse log transform to get absolute prices
+        return np.exp(predictions_log)
     
     def supports_incremental_learning(self) -> bool:
         """Check if model supports partial_fit."""
@@ -144,8 +149,11 @@ class LinearRegressionModel(ModelInterface):
         else:
             X_scaled = self.scaler.transform(X)
         
+        # Log-transform target prices
+        y_log = np.log(y)
+        
         # Incrementally train model on scaled features
-        self.model.partial_fit(X_scaled, y)
+        self.model.partial_fit(X_scaled, y_log)
         
         # Update training status
         self.is_trained = True
