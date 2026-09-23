@@ -8,7 +8,9 @@ export type Currency = 'USD' | 'INR';
 let currentExchangeRate: number | null = null;
 
 export function setExchangeRate(rate: number): void {
-  currentExchangeRate = rate;
+  if (typeof rate === 'number' && !isNaN(rate) && isFinite(rate) && rate > 0) {
+    currentExchangeRate = rate;
+  }
 }
 
 export function getExchangeRate(): number {
