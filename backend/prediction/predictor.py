@@ -300,7 +300,7 @@ class StockPredictor:
                 # Single model confidence
                 model_pred = model_predictions[0]
                 # Use the actual R² score from training metrics
-                model_r2 = models_to_use[model_pred['model']].training_metrics.get('r2_score', 0.5)
+                model_r2 = (getattr(models_to_use[model_pred['model']], 'training_metrics', {}) or {}).get('r2_score', 0.5)
                 confidence = confidence_calculator.calculate_single_model_confidence(
                     model_accuracy=model_r2,
                     historical_prices=df['close'].values if 'close' in df.columns else np.array([current_price]),
@@ -311,7 +311,7 @@ class StockPredictor:
                 # Ensemble confidence
                 # Use actual R² scores from each model's training metrics
                 model_accuracies = {
-                    p['model']: models_to_use[p['model']].training_metrics.get('r2_score', 0.5)
+                    p['model']: (getattr(models_to_use[p['model']], 'training_metrics', {}) or {}).get('r2_score', 0.5)
                     for p in model_predictions
                 }
                 model_price_predictions = {p['model']: p['prediction'] for p in model_predictions}
@@ -455,26 +455,39 @@ class StockPredictor:
                 try:
                     logger.debug(f"Using pre-trained {model_name} for {symbol} {horizon}")
                     
-                    # Get prediction (model predicts PERCENTAGE CHANGE, not raw price)
-                    if horizon == '1D':
-                        # Direct prediction for next day (percentage change)
-                        prediction_pct = model.predict(X[-1:].reshape(1, -1))[0]
+                    if model_name == 'arima':
+                        # Special handling for ARIMA (per-stock specialist models)
+                        models_dir = os.path.join(os.path.dirname(__file__), '..', 'models')
+                        model_path = os.path.join(models_dir, 'arima', f"{symbol}_model.pkl")
+                        if not os.path.exists(model_path):
+                            logger.warning(f"ARIMA model for {symbol} not found at {model_path}. Skipping.")
+                            continue
+                        arima_instance = model().load(model_path)
+                        forecast_result = arima_instance.predict_with_confidence(X, steps=horizon_days)
+                        predicted_price = forecast_result[0][-1]
+                        prediction_pct = (predicted_price - current_price) / current_price * 100
+                        accuracy = (getattr(arima_instance, 'training_metrics', {}) or {}).get('r2_score', 0.5)
                     else:
-                        # For longer horizons, use iterative prediction or trend extrapolation
-                        prediction_pct = self._extrapolate_prediction(
-                            model, X, y, horizon_days, current_price
-                        )
-                    
-                    # Convert percentage change to actual price
-                    # Formula: predicted_price = current_price * (1 + prediction_percentage/100)
-                    predicted_price = current_price * (1 + prediction_pct / 100)
-                    
-                    # Debug logging
-                    logger.info(f"[DEBUG] {model_name} for {symbol} {horizon}: current_price={current_price:.2f}, prediction_pct={prediction_pct:.4f}%, predicted_price={predicted_price:.2f}")
-                    
-                    # Use the R² score from training (already calculated and stored during model training)
-                    # This is more efficient and accurate than recalculating on the fly
-                    accuracy = model.training_metrics.get('r2_score', 0.5)
+                        # Get prediction (model predicts PERCENTAGE CHANGE, not raw price)
+                        if horizon == '1D':
+                            # Direct prediction for next day (percentage change)
+                            prediction_pct = model.predict(X[-1:].reshape(1, -1))[0]
+                        else:
+                            # For longer horizons, use iterative prediction or trend extrapolation
+                            prediction_pct = self._extrapolate_prediction(
+                                model, X, y, horizon_days, current_price
+                            )
+                        
+                        # Convert percentage change to actual price
+                        # Formula: predicted_price = current_price * (1 + prediction_percentage/100)
+                        predicted_price = current_price * (1 + prediction_pct / 100)
+                        
+                        # Debug logging
+                        logger.info(f"[DEBUG] {model_name} for {symbol} {horizon}: current_price={current_price:.2f}, prediction_pct={prediction_pct:.4f}%, predicted_price={predicted_price:.2f}")
+                        
+                        # Use the R² score from training (already calculated and stored during model training)
+                        # This is more efficient and accurate than recalculating on the fly
+                        accuracy = (getattr(model, 'training_metrics', {}) or {}).get('r2_score', 0.5)
                     
                     model_predictions[model_name] = predicted_price
                     model_accuracies[model_name] = accuracy
