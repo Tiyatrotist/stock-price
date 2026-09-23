@@ -186,6 +186,7 @@ export default function App() {
   };
 
   const handleStockSelect = (symbol: string) => {
+    stockService.cancelActiveRequests(); // Cancel any inflight requests!
     setSelectedSymbol(symbol);
   };
 
