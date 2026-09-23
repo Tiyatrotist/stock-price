@@ -169,7 +169,8 @@ class IndianLatestFetcher:
                 data = ticker.history(
                     start=self.start_date, 
                     end=self.end_date, 
-                    auto_adjust=False  # Proven pattern from inspiration code
+                    auto_adjust=False,  # Proven pattern from inspiration code
+                    timeout=5
                 )
                 
                 if data.empty:
@@ -427,7 +428,8 @@ class IndianLatestFetcher:
                 data = ticker.history(
                     start=start_date.strftime('%Y-%m-%d'),
                     end=today.strftime('%Y-%m-%d'),
-                    auto_adjust=False
+                    auto_adjust=False,
+                    timeout=5
                 )
                 
                 if data.empty:
