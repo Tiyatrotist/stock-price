@@ -10,6 +10,7 @@ import sys
 import yfinance as yf
 import pandas as pd
 import time
+import requests
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 from datetime import datetime
@@ -46,6 +47,9 @@ class USHistoricalFetcher:
         # Rate limiting
         self.rate_limit_delay = 1.5  # seconds between requests
         self.max_retries = 3
+        
+        # Session for connection pooling
+        self.session = requests.Session()
         
     def load_symbols_from_index(self) -> Optional[List[str]]:
         """
@@ -125,7 +129,7 @@ class USHistoricalFetcher:
                 print(f"Downloading {symbol} (attempt {attempt + 1}/{self.max_retries})")
                 
                 # Download data using yfinance
-                ticker = yf.Ticker(symbol)
+                ticker = yf.Ticker(symbol, session=self.session)
                 data = ticker.history(
                     start=self.start_date, 
                     end=self.end_date, 
