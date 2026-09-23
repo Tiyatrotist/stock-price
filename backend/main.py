@@ -496,6 +496,21 @@ def get_stock_info():
         index_manager = DynamicIndexManager(config.data_dir)
         stock_info = index_manager.get_stock_info(symbol, category)
         
+        if stock_info:
+            try:
+                latest_file = os.path.join(config.data_dir, 'latest', category, 'individual_files', f'{symbol}.csv')
+                if os.path.exists(latest_file):
+                    import pandas as pd
+                    from algorithms.stock_indicators import StockIndicators
+                    df_latest = pd.read_csv(latest_file)
+                    df_with_rsi = StockIndicators._add_rsi(df_latest)
+                    stock_info['indicators'] = {
+                        'rsi': float(df_with_rsi.iloc[-1]['rsi']),
+                        'rsi_tag': str(df_with_rsi.iloc[-1]['rsi_tag'])
+                    }
+            except Exception as e:
+                logger.warning(f"Could not calculate RSI for {symbol} metadata: {e}")
+        
         if not stock_info:
             return jsonify({
                 'success': False,
