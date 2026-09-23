@@ -6,7 +6,7 @@ import { Skeleton } from './ui/skeleton';
 import { Alert, AlertDescription } from './ui/alert';
 import { Button } from './ui/button';
 import { StockData, LivePriceResponse, StockInfoResponse } from '../services/stockService';
-import { formatPrice, formatPriceDirect, Currency, setExchangeRate, convertPrice, getExchangeRate } from '../utils/currency';
+import { formatPrice, formatPriceDirect, Currency, setExchangeRate, convertPrice, getExchangeRate, formatCompactNumber } from '../utils/currency';
 import { CurrencyToggle } from './CurrencyToggle';
 
 interface StockInfoProps {
@@ -295,6 +295,16 @@ export function StockInfo({ data, loading, error, currency, onCurrencyChange, li
             <div className="flex justify-between items-center">
               <span className="stock-metadata-label text-muted-foreground">Market Cap</span>
               <span className="stock-metadata-value">{data.marketCap}</span>
+            </div>
+          )}
+
+          {data.volume !== undefined && data.volume !== null && data.volume > 0 && (
+            <div className="flex justify-between items-center">
+              <span className="stock-metadata-label text-muted-foreground flex items-center gap-1">
+                <BarChart3 className="stock-metadata-icon" />
+                Volume
+              </span>
+              <span className="stock-metadata-value">{formatCompactNumber(data.volume)}</span>
             </div>
           )}
 
