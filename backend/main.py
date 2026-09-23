@@ -696,7 +696,7 @@ def get_historical_data():
             return jsonify({
                 'success': True,
                 'data': price_points
-            })
+            }), 200, {'Cache-Control': 'public, max-age=3600'}
             
         except ImportError:
             import csv
@@ -738,7 +738,7 @@ def get_historical_data():
             return jsonify({
                 'success': True,
                 'data': all_records
-            })
+            }), 200, {'Cache-Control': 'public, max-age=3600'}
         
     except Exception as e:
         logger.error(f"Error fetching historical data for {symbol}: {str(e)}")
