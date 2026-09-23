@@ -151,7 +151,8 @@ class IndianHistoricalFetcher:
                 data = ticker.history(
                     start=self.start_date, 
                     end=self.end_date, 
-                    auto_adjust=False  # Proven pattern from inspiration code
+                    auto_adjust=False,  # Proven pattern from inspiration code
+                    timeout=5
                 )
                 
                 if data.empty:
