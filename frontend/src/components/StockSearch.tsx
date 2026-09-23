@@ -73,6 +73,12 @@ export function StockSearch({ onStockSelect, selectedSymbol }: StockSearchProps)
             placeholder="Search stocks (e.g., AAPL, Apple)"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setQuery('');
+                setSearchResults([]);
+              }
+            }}
             className="pl-10 stock-search-input"
           />
         </div>
