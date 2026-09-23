@@ -9,6 +9,8 @@ import { Card, CardHeader, CardTitle, CardContent } from './components/ui/card';
 import { Alert, AlertDescription } from './components/ui/alert';
 import { stockService, StockData, PricePoint, PredictionResult, LivePriceResponse, StockInfoResponse } from './services/stockService';
 import { Currency } from './utils/currency';
+import { Toaster } from './components/ui/sonner';
+import { toast } from 'sonner';
 
 export default function App() {
   const [selectedSymbol, setSelectedSymbol] = useState<string>('');
@@ -84,7 +86,7 @@ export default function App() {
     } catch (error) {
       console.error('Failed to load stock data:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to load stock data';
-      setErrors(prev => ({ ...prev, stock: errorMessage }));
+      toast.error('Stock Data Error', { description: errorMessage });
       setStockData(null);
       setLivePriceData(null);
       setStockInfoData(null);
@@ -102,7 +104,7 @@ export default function App() {
     } catch (error) {
       console.error('Failed to load chart data:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to load chart data';
-      setErrors(prev => ({ ...prev, chart: errorMessage }));
+      toast.error('Chart Data Error', { description: errorMessage });
       setChartData([]);
     } finally {
       setLoading(prev => ({ ...prev, chart: false }));
@@ -130,7 +132,7 @@ export default function App() {
     } catch (error) {
       console.error('Failed to load prediction:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to generate prediction';
-      setErrors(prev => ({ ...prev, prediction: errorMessage }));
+      toast.error('Prediction Error', { description: errorMessage });
       setPrediction(null);
     } finally {
       setLoading(prev => ({ ...prev, prediction: false }));
@@ -168,12 +170,12 @@ export default function App() {
       } else {
         // If live price failed, don't fall back to stale data - show error
         setPrediction(null);
-        setErrors(prev => ({ ...prev, prediction: 'No live price available for prediction' }));
+        toast.error('Prediction Error', { description: 'No live price available for prediction' });
       }
     } catch (error) {
       console.error('Failed to load stock data:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to load stock data';
-      setErrors(prev => ({ ...prev, stock: errorMessage, prediction: 'No live price available for prediction' }));
+      toast.error('Stock Data Error', { description: errorMessage });
       setStockData(null);
       setLivePriceData(null);
       setStockInfoData(null);
@@ -205,6 +207,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Toaster position="top-right" richColors />
       <div className="main-app-container space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
