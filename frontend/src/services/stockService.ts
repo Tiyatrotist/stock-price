@@ -81,6 +81,10 @@ export interface StockInfoResponse {
   headquarters: string;
   exchange: string;
   category: string;
+  indicators?: {
+    rsi?: number;
+    rsi_tag?: string;
+  };
 }
 
 // API response wrapper

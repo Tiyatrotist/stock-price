@@ -298,6 +298,28 @@ export function StockInfo({ data, loading, error, currency, onCurrencyChange, li
             </div>
           )}
 
+          {stockInfoData && stockInfoData.indicators && stockInfoData.indicators.rsi !== undefined && (
+            <div className="flex justify-between items-center">
+              <span className="stock-metadata-label text-muted-foreground flex items-center gap-1">
+                <BarChart3 className="stock-metadata-icon" />
+                RSI (14)
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="stock-metadata-value text-sm">
+                  {stockInfoData.indicators.rsi.toFixed(2)}
+                </span>
+                {stockInfoData.indicators.rsi_tag && (
+                  <Badge 
+                    variant={stockInfoData.indicators.rsi_tag === 'Overbought' ? 'destructive' : stockInfoData.indicators.rsi_tag === 'Oversold' ? 'default' : 'secondary'}
+                    className="text-[10px] px-1.5 py-0"
+                  >
+                    {stockInfoData.indicators.rsi_tag}
+                  </Badge>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Additional metadata from stock info data (fast) or live price data (fallback) */}
           {(stockInfoData?.sector || livePriceData?.sector) && (stockInfoData?.sector || livePriceData?.sector) !== 'N/A' && (
             <div className="flex justify-between items-center">

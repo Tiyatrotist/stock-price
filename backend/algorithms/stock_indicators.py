@@ -93,6 +93,7 @@ class StockIndicators:
         """Add Relative Strength Index (RSI)."""
         if len(df) < period + 1:
             df['rsi'] = 50.0  # Neutral RSI
+            df['rsi_tag'] = 'Neutral'
             return df
         
         delta = df['close'].diff()
@@ -109,6 +110,14 @@ class StockIndicators:
         # Fill NaN values with neutral RSI and handle infinity
         df['rsi'] = df['rsi'].replace([np.inf, -np.inf], 50.0)
         df['rsi'] = df['rsi'].fillna(50.0)
+        
+        # Add RSI Tag
+        conditions = [
+            (df['rsi'] > 70),
+            (df['rsi'] < 30)
+        ]
+        choices = ['Overbought', 'Oversold']
+        df['rsi_tag'] = np.select(conditions, choices, default='Neutral')
         
         return df
     
