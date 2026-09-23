@@ -122,6 +122,27 @@ class StockIndicators:
         return df
     
     @staticmethod
+    def check_golden_cross(df: pd.DataFrame) -> bool:
+        """
+        Check if a Golden Cross just occurred (50-day SMA crossed above 200-day SMA).
+        Returns True if a cross happened in the most recent day.
+        """
+        if len(df) < 201:  # Need 200 days for SMA, plus 1 for the previous day
+            return False
+            
+        # Ensure SMAs are calculated
+        if 'sma_50' not in df.columns or 'sma_200' not in df.columns:
+            df = StockIndicators._add_moving_averages(df)
+            
+        today = df.iloc[-1]
+        yesterday = df.iloc[-2]
+        
+        # Golden Cross: 50 SMA crosses above 200 SMA
+        crossed_above = (yesterday['sma_50'] <= yesterday['sma_200']) and (today['sma_50'] > today['sma_200'])
+        
+        return bool(crossed_above)
+
+    @staticmethod
     def _add_macd(df: pd.DataFrame, fast: int = 12, slow: int = 26, signal: int = 9) -> pd.DataFrame:
         """Add MACD (Moving Average Convergence Divergence)."""
         if len(df) < slow:

@@ -320,6 +320,18 @@ export function StockInfo({ data, loading, error, currency, onCurrencyChange, li
             </div>
           )}
 
+          {stockInfoData && stockInfoData.indicators && stockInfoData.indicators.golden_cross && (
+            <div className="flex justify-between items-center">
+              <span className="stock-metadata-label text-muted-foreground flex items-center gap-1">
+                <TrendingUp className="stock-metadata-icon text-green-500" />
+                Golden Cross
+              </span>
+              <Badge variant="default" className="text-[10px] px-1.5 py-0 bg-green-500 hover:bg-green-600">
+                Bullish Signal
+              </Badge>
+            </div>
+          )}
+
           {/* Additional metadata from stock info data (fast) or live price data (fallback) */}
           {(stockInfoData?.sector || livePriceData?.sector) && (stockInfoData?.sector || livePriceData?.sector) !== 'N/A' && (
             <div className="flex justify-between items-center">
