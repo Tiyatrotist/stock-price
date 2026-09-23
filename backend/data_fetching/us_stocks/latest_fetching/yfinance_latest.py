@@ -49,6 +49,9 @@ class USLatestFetcher:
         self.rate_limit_delay = 1.5  # seconds between requests
         self.max_retries = 3
         
+        # Session for connection pooling
+        self.session = requests.Session()
+        
     def load_symbols_from_index(self) -> Optional[List[str]]:
         """
         Load symbols from the US stocks index file.
@@ -140,7 +143,7 @@ class USLatestFetcher:
                 print(f"Downloading {symbol} from yfinance (attempt {attempt + 1}/{self.max_retries})")
                 
                 # Download data using yfinance
-                ticker = yf.Ticker(symbol)
+                ticker = yf.Ticker(symbol, session=self.session)
                 data = ticker.history(
                     start=self.start_date, 
                     end=self.end_date, 
@@ -394,7 +397,7 @@ class USLatestFetcher:
             
             # Try to fetch data from yfinance
             try:
-                ticker = yf.Ticker(symbol)
+                ticker = yf.Ticker(symbol, session=self.session)
                 data = ticker.history(
                     start=start_date.strftime('%Y-%m-%d'),
                     end=today.strftime('%Y-%m-%d'),

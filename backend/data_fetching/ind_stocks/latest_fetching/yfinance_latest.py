@@ -51,6 +51,9 @@ class IndianLatestFetcher:
         # Rate limiting
         self.rate_limit_delay = 1.5  # seconds between requests
         self.max_retries = 3
+        
+        # Session for connection pooling
+        self.session = requests.Session()
     
         
     def prepare_yfinance_symbol(self, symbol: str) -> str:
@@ -165,7 +168,7 @@ class IndianLatestFetcher:
                 print(f"Using yfinance symbol: {yfinance_symbol}")
                 
                 # Download data using yfinance
-                ticker = yf.Ticker(yfinance_symbol)
+                ticker = yf.Ticker(yfinance_symbol, session=self.session)
                 data = ticker.history(
                     start=self.start_date, 
                     end=self.end_date, 
@@ -424,7 +427,7 @@ class IndianLatestFetcher:
             
             # Try to fetch data from yfinance
             try:
-                ticker = yf.Ticker(yfinance_symbol)
+                ticker = yf.Ticker(yfinance_symbol, session=self.session)
                 data = ticker.history(
                     start=start_date.strftime('%Y-%m-%d'),
                     end=today.strftime('%Y-%m-%d'),
