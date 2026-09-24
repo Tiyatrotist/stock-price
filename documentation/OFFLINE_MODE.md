@@ -220,7 +220,7 @@ date,open,high,low,close,volume,adjusted_close,currency
 | Could not load stock data | Verify `permanent/` directory exists, check files |
 | Backend won't start | Create empty `.env` file |
 | Charts show no data | Check backend logs for `/historical` endpoint |
-| Frontend build errors | Run `rm -rf node_modules package-lock.json && npm install` |
+| Frontend build errors | Delete `node_modules` folder and `package-lock.json`, then run `npm install` |
 | Python import errors | Activate venv and run `pip install -r requirements.txt` |
 
 ---
