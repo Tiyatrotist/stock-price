@@ -21,6 +21,7 @@ A comprehensive full-stack web application for real-time stock price analysis an
 ## Currency Conversion
 
 Automatic USD/INR conversion for all stocks:
+
 - **Sources**: Live forex APIs → Cached rates → Static rate (83.5 USD/INR)
 - **Display**: Original currency + converted price shown for all stocks
 
@@ -35,17 +36,21 @@ Automatic USD/INR conversion for all stocks:
 **The system works completely offline without any API keys!** This is the recommended way to get started.
 
 ### What Works Offline
+
 - **Stock Information**: 500 Indian + 501 US stocks (1,001 total) from permanent directory
 - **Historical Charts**: Complete 5-year OHLCV data (2020-2024)
 - **ML Predictions**: All trained models work with offline data (trained on 936 stocks with sufficient data)
 - **Search**: Full-text search across 1,001 stocks
 - **Technical Indicators**: 38 indicators calculated from historical data
+
 ### What doesn't Work Offline
+
 - **Live Prices**: Requires API keys (Finnhub for US, Upstox for India)
 
 ## Installation Guide
 
 ### Prerequisites
+
 - **Python**: 3.8 or higher
 - **Node.js**: 16 or higher
 - **Git**: For cloning repository
@@ -55,6 +60,7 @@ Automatic USD/INR conversion for all stocks:
 ### Windows Installation
 
 #### 1. Install Python
+
 ```powershell
 # Using winget (Windows Package Manager)
 winget install Python.Python.3.11
@@ -65,6 +71,7 @@ python --version
 ```
 
 #### 2. Install Node.js
+
 ```powershell
 # Using winget
 winget install OpenJS.NodeJS
@@ -75,6 +82,7 @@ npm --version
 ```
 
 #### 3. Clone and Setup
+
 ```powershell
 # Clone repository
 git clone https://github.com/ankit02327/stock-price.git
@@ -98,11 +106,13 @@ npm install
 ### macOS Installation
 
 #### 1. Install Homebrew (if not installed)
+
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
 #### 2. Install Python and Node.js
+
 ```bash
 # Install Python and Node.js
 brew install python@3.11 node
@@ -114,6 +124,7 @@ npm --version
 ```
 
 #### 3. Clone and Setup
+
 ```bash
 # Clone repository
 git clone https://github.com/ankit02327/stock-price.git
@@ -137,11 +148,13 @@ npm install
 ### Linux Installation (Ubuntu/Debian)
 
 #### 1. Update Package List
+
 ```bash
 sudo apt update
 ```
 
 #### 2. Install Python and Node.js
+
 ```bash
 # Install Python and pip
 sudo apt install python3.11 python3.11-pip python3.11-venv
@@ -157,6 +170,7 @@ npm --version
 ```
 
 #### 3. Clone and Setup
+
 ```bash
 # Clone repository
 git clone https://github.com/ankit02327/stock-price.git
@@ -180,6 +194,7 @@ npm install
 ## Quick Start
 
 ### 1. Start Backend
+
 ```bash
 cd backend
 venv\Scripts\activate  # Windows
@@ -188,6 +203,7 @@ python main.py
 ```
 
 ### 2. Start Frontend (New Terminal)
+
 ```bash
 cd frontend
 npm run dev
@@ -220,12 +236,12 @@ Check: `python status.py` | Test API: `curl http://localhost:5000/health`
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Backend won't start | Verify `permanent/` directory exists and create empty `.env` file |
-| Frontend build errors | Run `rm -rf node_modules package-lock.json && npm install` |
-| Python import errors | Activate venv: `venv\Scripts\activate` (Windows) or `source venv/bin/activate` (macOS/Linux) |
-| Out of memory | Close other apps, ensure 8GB+ RAM, train one model at a time |
+| Issue                 | Solution                                                                                     |
+| --------------------- | -------------------------------------------------------------------------------------------- |
+| Backend won't start   | Verify `permanent/` directory exists and create empty `.env` file                            |
+| Frontend build errors | Run `rm -rf node_modules package-lock.json && npm install`                                   |
+| Python import errors  | Activate venv: `venv\Scripts\activate` (Windows) or `source venv/bin/activate` (macOS/Linux) |
+| Out of memory         | Close other apps, ensure 8GB+ RAM, train one model at a time                                 |
 
 ## Important Notes
 
@@ -242,6 +258,9 @@ python main.py    # Start backend
 npm run dev       # Start frontend
 
 ```
+
+## Screenshots
+
 <img width="1889" height="971" alt="image" src="https://github.com/user-attachments/assets/57f8b0c1-8891-4fa0-a8ac-e5031d6cd570" />
 <img width="1885" height="967" alt="image" src="https://github.com/user-attachments/assets/e02d1a0d-8132-428d-8372-c3f4874d4618" />
 <img width="1892" height="959" alt="image" src="https://github.com/user-attachments/assets/ffd8c1c0-9132-4b1d-af40-5e3529e5d1f5" />
