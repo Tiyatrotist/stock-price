@@ -1,7 +1,8 @@
-<img width="1889" height="971" alt="image" src="https://github.com/user-attachments/assets/57f8b0c1-8891-4fa0-a8ac-e5031d6cd570" />
-<img width="1885" height="967" alt="image" src="https://github.com/user-attachments/assets/e02d1a0d-8132-428d-8372-c3f4874d4618" />
-<img width="1892" height="959" alt="image" src="https://github.com/user-attachments/assets/ffd8c1c0-9132-4b1d-af40-5e3529e5d1f5" />
+<div align="center">
 
+![alt text](https://github.com/user-attachments/assets/cde2229a-a14a-461d-8d41-b7d78dd30394)
+
+</div>
 
 # Stock Price Prediction System
 
@@ -241,8 +242,6 @@ python main.py    # Start backend
 npm run dev       # Start frontend
 
 ```
-<div align="center">
-
-![alt text](https://github.com/user-attachments/assets/cde2229a-a14a-461d-8d41-b7d78dd30394)
-
-</div>
+<img width="1889" height="971" alt="image" src="https://github.com/user-attachments/assets/57f8b0c1-8891-4fa0-a8ac-e5031d6cd570" />
+<img width="1885" height="967" alt="image" src="https://github.com/user-attachments/assets/e02d1a0d-8132-428d-8372-c3f4874d4618" />
+<img width="1892" height="959" alt="image" src="https://github.com/user-attachments/assets/ffd8c1c0-9132-4b1d-af40-5e3529e5d1f5" />
