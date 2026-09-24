@@ -20,7 +20,7 @@ ML backend with 7 algorithms, automated training, RESTful API, and real-time dat
 ### Setup
 ```bash
 # Navigate to backend directory
-cd ml/backend
+cd backend
 
 # Create and activate virtual environment
 python -m venv venv
@@ -158,7 +158,7 @@ CORS_ORIGINS=http://localhost:5173,http://localhost:3000
 FINNHUB_API_KEY=your_finnhub_api_key_here
 UPSTOX_CLIENT_ID=your_upstox_client_id_here
 UPSTOX_CLIENT_SECRET=your_upstox_secret_here
-UPSTOX_REDIRECT_URI=http://localhost:5173
+UPSTOX_REDIRECT_URI=http://localhost:3000
 
 # Optional: Cache settings
 CACHE_DIR=backend/_cache

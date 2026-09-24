@@ -26,7 +26,7 @@ Complete integration with Upstox API v2 for real-time Indian stock market data. 
 ## 🚀 Quick Daily Setup (30 seconds)
 
 ```bash
-cd ml/backend
+cd backend
 python scripts/setup_upstox_oauth.py
 ```
 
