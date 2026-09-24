@@ -19,7 +19,7 @@ from tensorflow.keras.layers import Input, Dense, Dropout, BatchNormalization
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LinearRegression
+from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 import joblib
 import logging
@@ -130,15 +130,22 @@ class AutoencoderModel(ModelInterface):
                 batch_size=32,
                 validation_split=0.2,
                 callbacks=callbacks,
-                verbose=1
+                verbose=1,
+                shuffle=False  # CRITICAL: Prevent time-series data leakage
             )
             
             # Extract encoded features
             encoded_features = self.encoder.predict(X_scaled)
             
-            # Train regression model on encoded features
-            logger.info("Training regression model on encoded features...")
-            self.regressor = LinearRegression()
+            # Train non-linear regression model on encoded features
+            logger.info("Training non-linear regression model on encoded features...")
+            self.regressor = MLPRegressor(
+                hidden_layer_sizes=(32, 16),
+                activation='relu',
+                max_iter=1000,
+                early_stopping=True,
+                random_state=42
+            )
             self.regressor.fit(encoded_features, y)
             
             # Set trained flag before calculating metrics
@@ -234,8 +241,8 @@ class AutoencoderModel(ModelInterface):
         
         try:
             # Save autoencoder and encoder
-            self.autoencoder.save(f"{path}_autoencoder.h5")
-            self.encoder.save(f"{path}_encoder.h5")
+            self.autoencoder.save(f"{path}_autoencoder.keras")
+            self.encoder.save(f"{path}_encoder.keras")
             
             # Save other components
             joblib.dump({
@@ -261,8 +268,8 @@ class AutoencoderModel(ModelInterface):
         
         try:
             # Load autoencoder and encoder (compile=False to avoid metric deserialization issues)
-            self.autoencoder = load_model(f"{path}_autoencoder.h5", compile=False)
-            self.encoder = load_model(f"{path}_encoder.h5", compile=False)
+            self.autoencoder = load_model(f"{path}_autoencoder.keras", compile=False)
+            self.encoder = load_model(f"{path}_encoder.keras", compile=False)
             
             # Load metadata
             metadata = joblib.load(f"{path}_metadata.pkl")
