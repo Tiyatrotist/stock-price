@@ -1,6 +1,6 @@
 <div align="center">
 
-![alt text](https://github.com/user-attachments/assets/cde2229a-a14a-461d-8d41-b7d78dd30394)
+<img width="819" height="1040" alt="Stock Prediction" src="https://github.com/user-attachments/assets/231c3682-33df-4d9f-9aea-ac69a2226401" />
 
 </div>
 
