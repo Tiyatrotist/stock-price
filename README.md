@@ -27,9 +27,9 @@ Automatic USD/INR conversion for all stocks:
 
 ## Technology Stack
 
-**Backend**: Flask 2.3.3, Python 3.8+, TensorFlow 2.20, scikit-learn 1.5.2, statsmodels 0.14.4, pandas, numpy  
-**Frontend**: React 18.3.1, TypeScript, Vite 6.4.0, Tailwind CSS, Radix UI, Recharts 2.15.2  
-**APIs**: Finnhub (US stocks), Upstox (Indian stocks), yfinance (historical data)
+- **Backend**: Flask 2.3.3, Python 3.8+, TensorFlow 2.20, scikit-learn 1.5.2, statsmodels 0.14.4, pandas, numpy
+- **Frontend**: React 18.3.1, TypeScript, Vite 6.4.0, Tailwind CSS, Radix UI, Recharts 2.15.2
+- **APIs**: Finnhub (US stocks), Upstox (Indian stocks), yfinance (historical data)
 
 ## Offline Mode First
 
