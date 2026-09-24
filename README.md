@@ -216,6 +216,8 @@ Access: http://localhost:5173 (Backend: http://localhost:5000)
 **Indian Stocks (500)**: Use ISIN codes (INExxxxxxxx) at `permanent/ind_stocks/`  
 **US Stocks (501)**: Use ticker symbols (AAPL, MSFT, etc.) at `permanent/us_stocks/`
 
+## Model Training
+
 ```bash
 # Train: python backend/training/basic_models/{model}/trainer.py
 # Status: python status.py
