@@ -50,9 +50,9 @@
 See [Main README](../README.md) for detailed installation instructions.
 
 **Summary**:
-1. Backend: `cd ml/backend && python -m venv venv && venv\Scripts\activate && pip install -r requirements.txt`
+1. Backend: `cd backend && python -m venv venv && venv\Scripts\activate && pip install -r requirements.txt`
 2. Create empty `.env` file (required)
-3. Frontend: `cd ml/frontend && npm install`
+3. Frontend: `cd frontend && npm install`
 4. Run: Backend with `python main.py`, Frontend with `npm run dev`
 
 Access: http://localhost:5173
@@ -165,7 +165,7 @@ UPSTOX_CLIENT_SECRET=your_client_secret_here
 Upstox tokens expire daily at 3:30 AM IST. Run:
 
 ```bash
-cd ml/backend
+cd backend
 python scripts/setup_upstox_oauth.py
 ```
 
