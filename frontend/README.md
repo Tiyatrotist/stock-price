@@ -50,7 +50,7 @@ src/
 
 ## Configuration
 
-API base URL is configured in `src/services/api.ts`. Backend should be running at:
+API base URL is configured in `src/services/stockService.ts`. Backend should be running at:
 ```
 http://localhost:5000
 ```
