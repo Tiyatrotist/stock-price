@@ -135,7 +135,7 @@ US: `symbol,company_name,sector,market_cap,headquarters,exchange,currency`
 ```env
 UPSTOX_CLIENT_ID=your_client_id
 UPSTOX_CLIENT_SECRET=your_client_secret
-UPSTOX_REDIRECT_URI=http://localhost:8080/callback
+UPSTOX_REDIRECT_URI=http://localhost:3000
 UPSTOX_API_KEY=your_api_key
 UPSTOX_ACCESS_TOKEN=your_access_token
 ```
