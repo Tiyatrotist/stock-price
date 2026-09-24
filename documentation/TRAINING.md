@@ -119,7 +119,7 @@ npm --version
 ### 1. Environment Setup
 ```bash
 # Navigate to backend directory
-cd ml/backend
+cd backend
 
 # Create virtual environment
 python -m venv venv
@@ -302,13 +302,13 @@ python status.py --model random_forest
 
 ### 1. Start Backend Server
 ```bash
-cd ml/backend
+cd backend
 python main.py
 ```
 
 ### 2. Start Frontend (New Terminal)
 ```bash
-cd ml/frontend
+cd frontend
 npm install
 npm run dev
 ```
