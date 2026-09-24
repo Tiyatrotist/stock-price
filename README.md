@@ -241,7 +241,7 @@ Check: `python status.py` | Test API: `curl http://localhost:5000/health`
 | Issue                 | Solution                                                                                     |
 | --------------------- | -------------------------------------------------------------------------------------------- |
 | Backend won't start   | Verify `permanent/` directory exists and create empty `.env` file                            |
-| Frontend build errors | Run `rm -rf node_modules package-lock.json && npm install`                                   |
+| Frontend build errors | Delete `node_modules` folder and `package-lock.json`, then run `npm install`                 |
 | Python import errors  | Activate venv: `venv\Scripts\activate` (Windows) or `source venv/bin/activate` (macOS/Linux) |
 | Out of memory         | Close other apps, ensure 8GB+ RAM, train one model at a time                                 |
 
