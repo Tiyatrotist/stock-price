@@ -13,6 +13,7 @@ The main.py serves as the entry point and API coordinator.
 """
 
 import os
+import re
 import logging
 import pandas as pd
 import json
@@ -59,6 +60,19 @@ Compress(app)
 
 # Initialize configuration
 config = Config()
+
+_STOCK_SYMBOL_PATTERN = re.compile(r"^[A-Z0-9&]+(?:[.-][A-Z0-9&]+)*$")
+
+
+def normalize_stock_symbol(value):
+    """Return a trimmed uppercase ticker, or None when its format is unsafe."""
+    if not isinstance(value, str):
+        return None
+    symbol = value.strip().upper()
+    if not symbol or _STOCK_SYMBOL_PATTERN.fullmatch(symbol) is None:
+        return None
+    return symbol
+
 
 # Initialize components
 live_fetcher = LiveFetcher()
@@ -122,7 +136,7 @@ def health_check():
 @app.route('/live_price', methods=['GET'])
 def get_live_price():
     """Get live stock price for a symbol"""
-    symbol = request.args.get('symbol')
+    symbol = normalize_stock_symbol(request.args.get('symbol'))
     
     if not symbol:
         return jsonify({
@@ -298,7 +312,7 @@ def get_symbols():
 def predict_stock_price():
     """Generate stock price prediction using pre-trained ML models"""
     try:
-        symbol = request.args.get('symbol')
+        symbol = normalize_stock_symbol(request.args.get('symbol'))
         horizon_raw = request.args.get('horizon', '1D')
         horizon = horizon_raw.strip().upper() if horizon_raw else '1D'
         model_name = request.args.get('model', 'ensemble')  # Default to ensemble
@@ -403,7 +417,7 @@ def train_models():
     """Train ML models for a specific symbol"""
     try:
         data = request.get_json()
-        symbol = data.get('symbol')
+        symbol = normalize_stock_symbol(data.get('symbol'))
         models = data.get('models', None)
         force = data.get('force', False)
         max_data_points = data.get('max_data_points', None)
@@ -482,7 +496,7 @@ def get_models(symbol):
 @app.route('/stock_info', methods=['GET'])
 def get_stock_info():
     """Get stock metadata from dynamic index"""
-    symbol = request.args.get('symbol')
+    symbol = normalize_stock_symbol(request.args.get('symbol'))
     
     if not symbol:
         return jsonify({'success': False, 'error': 'Symbol parameter is required'}), 400
@@ -533,7 +547,7 @@ def get_stock_info():
 @app.route('/company_info', methods=['GET'])
 def get_company_info():
     """[FUTURE] Get comprehensive company information"""
-    symbol = request.args.get('symbol')
+    symbol = normalize_stock_symbol(request.args.get('symbol'))
     info_type = request.args.get('info_type', 'all')
     
     if not symbol:
@@ -551,7 +565,7 @@ def get_company_info():
 @app.route('/historical', methods=['GET'])
 def get_historical_data():
     """Get historical stock data for chart visualization"""
-    symbol = request.args.get('symbol')
+    symbol = normalize_stock_symbol(request.args.get('symbol'))
     period = request.args.get('period')
     
     if not symbol:
