@@ -13,7 +13,7 @@ from unittest.mock import patch, MagicMock
 # Add backend to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from main import app
+from main import app, normalize_stock_symbol
 
 
 @pytest.fixture
@@ -24,8 +24,49 @@ def client():
         yield client
 
 
-class TestPredictionAPI:
-    """Test cases for prediction API endpoints."""
+class TestStockSymbolValidation:
+    """Ticker input is normalized before endpoint code uses it."""
+
+    @pytest.mark.parametrize(
+        ("raw", "expected"),
+        [
+            (" aapl ", "AAPL"),
+            ("reliance.ns", "RELIANCE.NS"),
+            ("m&m", "M&M"),
+            ("mcdowell-n", "MCDOWELL-N"),
+        ],
+    )
+    def test_normalize_stock_symbol(self, raw, expected):
+        assert normalize_stock_symbol(raw) == expected
+
+    @pytest.mark.parametrize(
+        "raw",
+        [None, "", "   ", "AA PL", "AAPL/../../etc", "AAPL<script>"],
+    )
+    def test_normalize_stock_symbol_rejects_invalid_input(self, raw):
+        assert normalize_stock_symbol(raw) is None
+
+    @patch("main.get_exchange_rate_info", return_value={"rate": 83.5, "source": "test"})
+    @patch("main.live_fetcher.fetch_live_price", return_value={"symbol": "AAPL", "price": 100.0})
+    @patch("main.validate_and_categorize_stock", return_value="us_stocks")
+    def test_live_price_uses_normalized_symbol(
+        self, mock_categorize, mock_fetch, _mock_exchange, client
+    ):
+        response = client.get("/live_price?symbol=%20aapl%20")
+
+        assert response.status_code == 200
+        mock_categorize.assert_called_once_with("AAPL")
+        mock_fetch.assert_called_once_with("AAPL")
+
+    @patch("main.live_fetcher.fetch_live_price")
+    def test_live_price_rejects_invalid_symbol_before_fetch(self, mock_fetch, client):
+        response = client.get("/live_price?symbol=AAPL%2F..")
+
+        assert response.status_code == 400
+        mock_fetch.assert_not_called()
+
+
+class TestPredictionAPI:    """Test cases for prediction API endpoints."""
     
     def test_predict_endpoint_missing_symbol(self, client):
         """Test /api/predict without symbol parameter."""
