@@ -3,6 +3,9 @@ Linear Regression for Stock Price Prediction
 
 Optimized implementation using scikit-learn for stock price prediction
 based on OHLCV data and technical indicators.
+
+Supports regularized variants (Ridge, Lasso, ElasticNet) to prevent
+overfitting on noisy financial data, and SGD for incremental learning.
 """
 
 import numpy as np
@@ -11,9 +14,12 @@ from typing import Dict, Any, Tuple
 import sys
 import os
 import joblib
-from sklearn.linear_model import LinearRegression, SGDRegressor
+from sklearn.linear_model import LinearRegression, SGDRegressor, Ridge, Lasso, ElasticNet
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.preprocessing import StandardScaler
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Add parent directories to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -29,12 +35,29 @@ class LinearRegressionModel(ModelInterface):
     future stock prices. Volume is excluded from all calculations.
     """
     
-    def __init__(self, use_sgd: bool = False, **kwargs):
+    def __init__(self, use_sgd: bool = False, model_type: str = 'linear',
+                 alpha: float = 1.0, **kwargs):
+        """
+        Initialize Linear Regression model.
+
+        Args:
+            use_sgd: If True, use SGDRegressor for incremental learning.
+                     The `model_type` parameter controls the penalty when
+                     use_sgd is True ('l1', 'l2', 'elasticnet', or None).
+            model_type: Type of regression model for batch training.
+                        Options: 'linear', 'ridge', 'lasso', 'elasticnet'.
+                        For SGD mode, this maps to the corresponding penalty.
+            alpha: Regularization strength. Higher values = stronger
+                   regularization. Ignored when model_type='linear'.
+        """
         super().__init__('Linear Regression', **kwargs)
         self.model = None
         self.scaler = None
         self.feature_columns = None
         self.use_sgd = use_sgd  # Use SGD for efficient training on large datasets
+        self.model_type = model_type.lower()
+        self.alpha = alpha
+        self.use_log_transform = True  # Will be set to False if y contains non-positive values
         
     def _create_technical_indicators(self, df: pd.DataFrame) -> pd.DataFrame:
         """Calculate technical indicators from OHLC data (no volume)."""
@@ -51,23 +74,14 @@ class LinearRegressionModel(ModelInterface):
         Returns:
             self: Returns self for method chaining
         """
-        print(f"[DEBUG] LinearRegression.fit() called with X.shape={X.shape}, y.shape={y.shape}")
-        print(f"[DEBUG] X min={X.min():.2f}, max={X.max():.2f}, mean={X.mean():.2f}")
-        print(f"[DEBUG] y min={y.min():.2f}, max={y.max():.2f}, mean={y.mean():.2f}")
+        logger.info(f"LinearRegression.fit() called with X.shape={X.shape}, y.shape={y.shape}")
+        logger.debug(f"X min={X.min():.2f}, max={X.max():.2f}, mean={X.mean():.2f}")
+        logger.debug(f"y min={y.min():.2f}, max={y.max():.2f}, mean={y.mean():.2f}")
         
         self.validate_input(X, y)
         
-        # Initialize model (SGD for incremental learning, LinearRegression for batch)
-        if self.use_sgd:
-            self.model = SGDRegressor(
-                loss='squared_error',
-                learning_rate='adaptive',
-                eta0=0.01,
-                max_iter=1000,
-                random_state=42
-            )
-        else:
-            self.model = LinearRegression()
+        # Initialize model based on configuration
+        self.model = self._create_model()
         
         # Linear Regression NEEDS StandardScaler for numerical stability
         # Feature values range from -16000 to +16000 while target is -50 to +50
@@ -77,15 +91,15 @@ class LinearRegressionModel(ModelInterface):
         # Scale features for training
         X_scaled = self.scaler.fit_transform(X)
         
-        # Log-transform target prices for linear growth
-        y_log = np.log(y)
+        # Safe target transformation: only apply log if all values are positive
+        y_train = self._safe_transform_target(y)
         
         # Train model on scaled features
-        self.model.fit(X_scaled, y_log)
+        self.model.fit(X_scaled, y_train)
         
         # Calculate training metrics using inverse transformed predictions
-        y_pred_log = self.model.predict(X_scaled)
-        y_pred = np.exp(y_pred_log)
+        y_pred_raw = self.model.predict(X_scaled)
+        y_pred = self._inverse_transform_target(y_pred_raw)
         mse = mean_squared_error(y, y_pred)
         rmse = np.sqrt(mse)
         r2 = r2_score(y, y_pred)
@@ -93,10 +107,95 @@ class LinearRegressionModel(ModelInterface):
         self.set_training_metrics({
             'mse': mse,
             'rmse': rmse,
-            'r2_score': r2
+            'r2_score': r2,
+            'model_type': self.model_type,
+            'alpha': self.alpha if self.model_type != 'linear' else None,
+            'log_transformed': self.use_log_transform
         })
         
+        logger.info(
+            f"Training completed. R²={r2:.4f}, RMSE={rmse:.4f}, "
+            f"model_type={self.model_type}, log_transform={self.use_log_transform}"
+        )
+        
         return self
+    
+    def _create_model(self):
+        """
+        Create the appropriate regression model based on configuration.
+
+        For SGD mode, maps model_type to the corresponding penalty parameter.
+        For batch mode, instantiates the appropriate sklearn estimator.
+
+        Returns:
+            Configured sklearn regression estimator
+        """
+        if self.use_sgd:
+            # Map model_type to SGD penalty parameter
+            penalty_map = {
+                'linear': None,
+                'ridge': 'l2',
+                'lasso': 'l1',
+                'elasticnet': 'elasticnet'
+            }
+            penalty = penalty_map.get(self.model_type, None)
+            return SGDRegressor(
+                loss='squared_error',
+                penalty=penalty,
+                alpha=self.alpha if penalty else 0.0001,
+                learning_rate='adaptive',
+                eta0=0.01,
+                max_iter=1000,
+                random_state=42
+            )
+        else:
+            if self.model_type == 'ridge':
+                return Ridge(alpha=self.alpha)
+            elif self.model_type == 'lasso':
+                return Lasso(alpha=self.alpha)
+            elif self.model_type == 'elasticnet':
+                return ElasticNet(alpha=self.alpha)
+            else:
+                return LinearRegression()
+    
+    def _safe_transform_target(self, y: np.ndarray) -> np.ndarray:
+        """
+        Safely transform the target variable.
+
+        Applies log transform only when all target values are strictly positive
+        (i.e., absolute prices). If y contains zero or negative values (e.g.,
+        percentage returns), the log transform is skipped to prevent crashes.
+
+        Args:
+            y: Target array
+
+        Returns:
+            Transformed target array
+        """
+        if np.any(y <= 0):
+            logger.warning(
+                "Target variable contains zero or negative values. "
+                "Skipping log transform (y likely represents percentage returns)."
+            )
+            self.use_log_transform = False
+            return y
+        
+        self.use_log_transform = True
+        return np.log(y)
+    
+    def _inverse_transform_target(self, y_pred: np.ndarray) -> np.ndarray:
+        """
+        Inverse transform predictions back to the original target scale.
+
+        Args:
+            y_pred: Raw model predictions
+
+        Returns:
+            Predictions in original scale
+        """
+        if self.use_log_transform:
+            return np.exp(y_pred)
+        return y_pred
     
     def predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -106,7 +205,7 @@ class LinearRegressionModel(ModelInterface):
             X: Features to predict on (n_samples, n_features)
             
         Returns:
-            predictions: Predicted percentage changes (n_samples,)
+            predictions: Predicted stock prices or returns (n_samples,)
         """
         if not self.is_trained:
             raise ValueError("Model not trained")
@@ -117,10 +216,10 @@ class LinearRegressionModel(ModelInterface):
         X_scaled = self.scaler.transform(X)
         
         # Make predictions on scaled features
-        predictions_log = self.model.predict(X_scaled)
+        predictions_raw = self.model.predict(X_scaled)
         
-        # Inverse log transform to get absolute prices
-        return np.exp(predictions_log)
+        # Inverse transform to original scale
+        return self._inverse_transform_target(predictions_raw)
     
     def supports_incremental_learning(self) -> bool:
         """Check if model supports partial_fit."""
@@ -149,11 +248,11 @@ class LinearRegressionModel(ModelInterface):
         else:
             X_scaled = self.scaler.transform(X)
         
-        # Log-transform target prices
-        y_log = np.log(y)
+        # Safe target transformation
+        y_train = self._safe_transform_target(y)
         
         # Incrementally train model on scaled features
-        self.model.partial_fit(X_scaled, y_log)
+        self.model.partial_fit(X_scaled, y_train)
         
         # Update training status
         self.is_trained = True
@@ -170,18 +269,20 @@ class LinearRegressionModel(ModelInterface):
         if not self.is_trained:
             raise ValueError("Model not trained")
         
-        print(f"[DEBUG] LinearRegression.save() called with path={path}")
-        print(f"[DEBUG] Training metrics: {self.training_metrics}")
+        logger.info(f"Saving LinearRegression model to {path}")
         
         joblib.dump({
             'model': self.model,
             'scaler': self.scaler,
             'metrics': self.training_metrics,
             'params': self.model_params,
-            'feature_columns': self.feature_columns
+            'feature_columns': self.feature_columns,
+            'model_type': self.model_type,
+            'alpha': self.alpha,
+            'use_log_transform': self.use_log_transform
         }, path)
         
-        print(f"[DEBUG] Model saved successfully")
+        logger.info(f"Model saved successfully")
     
     def load(self, path: str) -> 'ModelInterface':
         """
@@ -199,15 +300,22 @@ class LinearRegressionModel(ModelInterface):
         self.training_metrics = data['metrics']
         self.model_params = data['params']
         self.feature_columns = data.get('feature_columns')
+        self.model_type = data.get('model_type', 'linear')
+        self.alpha = data.get('alpha', 1.0)
+        self.use_log_transform = data.get('use_log_transform', True)
         self.is_trained = True
         return self
     
     def get_feature_importance(self) -> Dict[str, float]:
         """
-        Get feature importance (coefficients) from the linear model.
+        Get normalized feature importance from the linear model.
+        
+        Coefficients are normalized by their absolute sum so that they
+        are comparable across different model types (LinearRegression,
+        Ridge, Lasso, SGDRegressor) regardless of scaling differences.
         
         Returns:
-            Dictionary of feature names and their coefficients
+            Dictionary of feature names and their normalized importance scores
         """
         if not self.is_trained:
             raise ValueError("Model not trained")
@@ -215,7 +323,16 @@ class LinearRegressionModel(ModelInterface):
         if self.feature_columns is None:
             return {}
         
-        coefficients = self.model.coef_
+        coefficients = self.model.coef_.copy()
+        
+        # Normalize coefficients by absolute sum for cross-model comparability
+        # This ensures that importance values are interpretable regardless of
+        # whether the model is vanilla LR, Ridge, Lasso, or SGD with different
+        # penalty strengths
+        abs_sum = np.sum(np.abs(coefficients))
+        if abs_sum > 0:
+            coefficients = coefficients / abs_sum
+        
         return dict(zip(self.feature_columns, coefficients))
     
     def predict_with_confidence(self, X: np.ndarray, confidence_level: float = 0.95) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
