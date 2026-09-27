@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
@@ -79,8 +79,21 @@ export function StockSearch({ onStockSelect, selectedSymbol }: StockSearchProps)
                 setSearchResults([]);
               }
             }}
-            className="pl-10 stock-search-input"
+            className="pl-10 pr-10 stock-search-input"
           />
+          {query.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery('');
+                setSearchResults([]);
+              }}
+              aria-label="Clear search input"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
+          )}
         </div>
 
         {(isSearching || isLoadingPopular) && (
