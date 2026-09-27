@@ -124,13 +124,19 @@ initialize_dynamic_indexes()
 
 
 @app.route('/health', methods=['GET'])
+@app.route('/api/health', methods=['GET'])
 def health_check():
-    """Health check endpoint"""
+    """Health check endpoint with deployment metadata."""
+    server_time = get_current_timestamp()
     return jsonify({
         'status': 'healthy',
+        'app': 'stock-price-api',
+        'environment': os.getenv('APP_ENV', 'development'),
+        'server_time': server_time,
+        # Backward-compatible fields used by existing clients and checks.
         'service': 'Stock Prediction API',
         'version': '1.0.0',
-        'timestamp': get_current_timestamp()
+        'timestamp': server_time
     })
 
 @app.route('/live_price', methods=['GET'])
