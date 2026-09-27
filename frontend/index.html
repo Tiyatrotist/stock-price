@@ -1,15 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stock Prediction Web Application</title>
+  </head>
 
-  <!DOCTYPE html>
-  <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Stock Prediction Web Application</title>
-    </head>
+  <body>
+    <noscript>
+      <style>
+        .noscript-message {
+          box-sizing: border-box;
+          max-width: 42rem;
+          margin: 4rem auto;
+          padding: 1.25rem 1.5rem;
+          border: 1px solid #d1d5db;
+          border-radius: 0.75rem;
+          background: #f9fafb;
+          color: #111827;
+          font: 1rem/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
 
-    <body>
-      <div id="root"></div>
-      <script type="module" src="/src/main.tsx"></script>
-    </body>
-  </html>
-  
+        .noscript-message strong,
+        .noscript-message span {
+          display: block;
+        }
+
+        .noscript-message span {
+          margin-top: 0.35rem;
+          color: #4b5563;
+        }
+
+        @media (prefers-color-scheme: dark) {
+          .noscript-message {
+            border-color: #374151;
+            background: #111827;
+            color: #f9fafb;
+          }
+
+          .noscript-message span {
+            color: #d1d5db;
+          }
+        }
+      </style>
+      <div class="noscript-message" role="alert">
+        <strong>JavaScript is required to use this application.</strong>
+        <span>Enable JavaScript to load stock data, predictions, and interactive charts.</span>
+      </div>
+    </noscript>
+
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
