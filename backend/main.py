@@ -123,6 +123,16 @@ def initialize_dynamic_indexes():
 initialize_dynamic_indexes()
 
 
+@app.route('/', methods=['GET'])
+def root():
+    """Return discoverable links for API users."""
+    return jsonify({
+        'service': 'Stock Prediction API',
+        'documentation': '/docs',
+        'health': '/api/health'
+    })
+
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
