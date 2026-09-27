@@ -41,9 +41,9 @@ export function StockInfo({ data, loading, error, currency, onCurrencyChange, li
                 size="sm"
                 onClick={onRefresh}
                 className="h-8 w-8 p-0"
-                disabled={loading}
+                loading={loading}
               >
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                <RefreshCw className="w-4 h-4" />
               </Button>
             </div>
             <CurrencyToggle currency={currency} onCurrencyChange={onCurrencyChange} />
@@ -75,9 +75,9 @@ export function StockInfo({ data, loading, error, currency, onCurrencyChange, li
                 size="sm"
                 onClick={onRefresh}
                 className="h-8 w-8 p-0"
-                disabled={loading}
+                loading={loading}
               >
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                <RefreshCw className="w-4 h-4" />
               </Button>
             </div>
             <CurrencyToggle currency={currency} onCurrencyChange={onCurrencyChange} />
@@ -105,9 +105,9 @@ export function StockInfo({ data, loading, error, currency, onCurrencyChange, li
                 size="sm"
                 onClick={onRefresh}
                 className="h-8 w-8 p-0"
-                disabled={loading}
+                loading={loading}
               >
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                <RefreshCw className="w-4 h-4" />
               </Button>
             </div>
             <CurrencyToggle currency={currency} onCurrencyChange={onCurrencyChange} />
@@ -173,9 +173,9 @@ export function StockInfo({ data, loading, error, currency, onCurrencyChange, li
               size="sm"
               onClick={onRefresh}
               className="h-8 w-8 p-0"
-              disabled={loading}
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              loading={loading}
+              >
+                <RefreshCw className="w-4 h-4" />
             </Button>
           </div>
           <CurrencyToggle currency={currency} onCurrencyChange={onCurrencyChange} />
