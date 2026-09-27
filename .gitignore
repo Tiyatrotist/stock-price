@@ -45,3 +45,7 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+.pytest_cache/
+.coverage
+.env.local
+.env.*.local
