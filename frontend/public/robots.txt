@@ -1,0 +1,3 @@
+# The stock prediction dashboard is an application surface, not public content.
+User-agent: *
+Disallow: /
