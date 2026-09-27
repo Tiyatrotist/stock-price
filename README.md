@@ -57,8 +57,6 @@ Automatic USD/INR conversion for all stocks:
 - **RAM**: 8GB minimum, 16GB recommended
 - **Storage**: 15GB free space
 
-[installation instructions here]
-
 ![Installation Demo](documentation/demos/installation.gif)
 
 ### Windows Installation
