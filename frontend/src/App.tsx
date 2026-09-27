@@ -34,6 +34,17 @@ export default function App() {
     prediction: ''
   });
 
+  // Keep the browser tab useful when several stocks are open in separate tabs.
+  useEffect(() => {
+    document.title = selectedSymbol
+      ? `${selectedSymbol} - Stock Price Tracker`
+      : 'Stock Price Tracker';
+
+    return () => {
+      document.title = 'Stock Price Tracker';
+    };
+  }, [selectedSymbol]);
+
   // Load stock data when symbol changes
   useEffect(() => {
     if (selectedSymbol) {
