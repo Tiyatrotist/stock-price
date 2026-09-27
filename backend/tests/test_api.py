@@ -201,15 +201,21 @@ class TestPredictionAPI:    """Test cases for prediction API endpoints."""
 class TestHealthEndpoints:
     """Test cases for health and utility endpoints."""
     
-    def test_health_endpoint(self, client):
-        """Test /health endpoint."""
-        response = client.get('/health')
+    @pytest.mark.parametrize('path', ['/health', '/api/health'])
+    def test_health_endpoint(self, client, path, monkeypatch):
+        """Both health routes expose deployment metadata without breaking old fields."""
+        monkeypatch.setenv('APP_ENV', 'test')
+
+        response = client.get(path)
+
         assert response.status_code == 200
         data = json.loads(response.data)
         assert data['status'] == 'healthy'
-        assert 'service' in data
-        assert 'version' in data
-        assert 'timestamp' in data
+        assert data['app'] == 'stock-price-api'
+        assert data['environment'] == 'test'
+        assert data['server_time'] == data['timestamp']
+        assert data['service'] == 'Stock Prediction API'
+        assert data['version'] == '1.0.0'
 
 class TestSearchEndpoint:
     """Test case for GET /search"""
