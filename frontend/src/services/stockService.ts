@@ -98,11 +98,11 @@ interface ApiResponse {
 
 // Backend API configuration
 const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
-const BACKEND_BASE_URL = configuredApiBaseUrl || 'http://localhost:8000';
+const BACKEND_BASE_URL = configuredApiBaseUrl || 'http://localhost:5000';
 
 if (!configuredApiBaseUrl && import.meta.env.DEV) {
   console.warn(
-    'VITE_API_BASE_URL is not set; defaulting to http://localhost:8000 for local development.'
+    'VITE_API_BASE_URL is not set; defaulting to http://localhost:5000 for local development.'
   );
 }
 const REQUEST_TIMEOUT = 30000; // 30 seconds
