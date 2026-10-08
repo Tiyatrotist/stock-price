@@ -23,6 +23,7 @@ from flask.json.provider import JSONProvider
 import orjson
 from flask_cors import CORS
 from flask_compress import Compress
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 import yfinance as yf
 
@@ -124,12 +125,16 @@ initialize_dynamic_indexes()
 
 
 @app.route('/health', methods=['GET'])
+@app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
     return jsonify({
         'status': 'healthy',
+        'app': 'Stock Prediction API',
         'service': 'Stock Prediction API',
         'version': '1.0.0',
+        'environment': os.getenv('FLASK_ENV', os.getenv('ENVIRONMENT', 'development')),
+        'server_time': datetime.now(timezone.utc).isoformat(),
         'timestamp': get_current_timestamp()
     })
 

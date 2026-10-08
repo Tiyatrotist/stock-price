@@ -67,7 +67,8 @@ class TestStockSymbolValidation:
         mock_fetch.assert_not_called()
 
 
-class TestPredictionAPI:    """Test cases for prediction API endpoints."""
+class TestPredictionAPI:
+    """Test cases for prediction API endpoints."""
     
     def test_predict_endpoint_missing_symbol(self, client):
         """Test /api/predict without symbol parameter."""
@@ -207,9 +208,23 @@ class TestHealthEndpoints:
         assert response.status_code == 200
         data = json.loads(response.data)
         assert data['status'] == 'healthy'
+        assert data['app'] == 'Stock Prediction API'
+        assert 'environment' in data
+        assert 'server_time' in data
         assert 'service' in data
         assert 'version' in data
         assert 'timestamp' in data
+
+    def test_api_health_endpoint(self, client):
+        """Test /api/health endpoint returns app name, environment, and server time (#66)."""
+        response = client.get('/api/health')
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data['status'] == 'healthy'
+        assert data['app'] == 'Stock Prediction API'
+        assert 'environment' in data
+        assert 'server_time' in data
+        assert 'T' in data['server_time']  # ISO 8601 format verification
 
 class TestSearchEndpoint:
     """Test case for GET /search"""
