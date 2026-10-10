@@ -6,6 +6,11 @@
 
 # Stock Price Prediction System
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python: 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
+[![React: 18](https://img.shields.io/badge/React-18-61dafb.svg)](https://react.dev/)
+[![Vite: 6](https://img.shields.io/badge/Vite-6-646cff.svg)](https://vitejs.dev/)
+
 A comprehensive full-stack web application for real-time stock price analysis and prediction using 7 machine learning algorithms, supporting both US and Indian markets with live data fetching, historical analysis, and interactive visualization.
 
 ## Key Features
@@ -260,8 +265,15 @@ Check: `python status.py` | Test API: `curl http://localhost:5000/health`
 python status.py  # Check status
 python main.py    # Start backend
 npm run dev       # Start frontend
-
 ```
+
+## Contributing
+
+Contributions, bug reports, and suggestions are welcome! Please review our community guidelines before getting started:
+
+- [Contributing Guidelines](CONTRIBUTING.md) — Setup instructions, issue workflows, and coding standards.
+- [Code of Conduct](CODE_OF_CONDUCT.md) — Community standards for an inclusive, welcoming environment.
+- [Security Policy](SECURITY.md) — Vulnerability reporting and disclosure protocols.
 
 ## Screenshots
 
